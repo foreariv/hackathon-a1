@@ -25,6 +25,11 @@
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<!-- JPA / Hibernate for Database Persistence -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
