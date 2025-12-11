@@ -1,6 +1,6 @@
 # --- STAGE 1: Build Stage ---
-# Use a Maven base image with JDK 17
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
+# Use a Maven base image with JDK 21
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 COPY pom.xml .
@@ -10,8 +10,8 @@ COPY src /app/src
 RUN mvn clean package -DskipTests
 
 # --- STAGE 2: Runtime Stage ---
-# Use a minimal JRE 17 image for the final container
-FROM eclipse-temurin:17-jre-alpine
+# Use a minimal JRE 21 image for the final container
+FROM eclipse-temurin:21-jre-alpine
 
 # Set the working directory
 WORKDIR /app
