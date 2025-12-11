@@ -92,4 +92,18 @@ public class DeviceController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @Operation(summary = "Crear nuevo dispositivo",
+               description = "Crea un nuevo dispositivo en el catálogo")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Dispositivo creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    })
+    @PostMapping
+    public ResponseEntity<Device> crearDispositivo(
+            @Parameter(description = "Datos del nuevo dispositivo")
+            @RequestBody Device device) {
+        Device nuevoDispositivo = deviceService.create(device);
+        return ResponseEntity.status(201).body(nuevoDispositivo);
+    }
 }

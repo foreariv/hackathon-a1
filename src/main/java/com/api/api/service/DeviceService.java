@@ -58,7 +58,7 @@ public class DeviceService {
         return devices.removeIf(d -> d.getId().equals(id));
     }
 
-    private Device create(Device device) {
+    public Device create(Device device) {
         device.setId(UUID.randomUUID());
         devices.add(device);
         return device;
