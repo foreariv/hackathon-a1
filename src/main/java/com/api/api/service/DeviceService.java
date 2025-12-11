@@ -3,9 +3,12 @@ package com.api.api.service;
 import com.api.api.dto.UpdateDeviceRequest;
 import com.api.api.model.Device;
 import com.api.api.repository.DeviceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,11 +22,36 @@ public class DeviceService {
     }
 
     /**
-     * Obtiene todos los dispositivos de la base de datos
-     * @return Lista de dispositivos
+     * Obtiene todos los dispositivos de la base de datos con paginación, sorting y filtros avanzados
+     * @param price Filtro opcional por precio exacto (igual a)
+     * @param minPrice Filtro opcional por precio mínimo (mayor o igual)
+     * @param maxPrice Filtro opcional por precio máximo (menor o igual)
+     * @param name Filtro opcional por nombre (búsqueda parcial)
+     * @param brand Filtro opcional por marca (búsqueda parcial)
+     * @param pageable Objeto que contiene información de paginación y ordenamiento
+     * @return Página de dispositivos
      */
-    public List<Device> obtenerTodos() {
-        return deviceRepository.findAll();
+    public Page<Device> getAll(BigDecimal minPrice, BigDecimal maxPrice,
+                                      String name, String brand, Pageable pageable) {
+        Specification<Device> spec = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        // Si no hay precio exacto, aplicar filtros de rango
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+        }
+
+        if (name != null && !name.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+        }
+
+        if (brand != null && !brand.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("brand")), "%" + brand.toLowerCase() + "%"));
+        }
+
+        return deviceRepository.findAll(spec, pageable);
     }
 
     /**

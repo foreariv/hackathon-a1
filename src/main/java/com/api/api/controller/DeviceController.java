@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -26,14 +30,21 @@ public class DeviceController {
         this.deviceService = deviceService;
     }
 
-    @Operation(summary = "Listar dispositivos",
-               description = "Retorna la lista completa de dispositivos del catálogo")
+    @Operation(summary = "Get Devices",
+               description = "Retorna la lista paginada de dispositivos del catálogo con soporte para ordenamiento y filtros avanzados de precio")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de dispositivos obtenida exitosamente")
     })
     @GetMapping
-    public ResponseEntity<List<Device>> listarDispositivos() {
-        return ResponseEntity.ok(deviceService.obtenerTodos());
+    public ResponseEntity<Page<Device>> listarDispositivos(
+            @RequestParam(required = false) @Parameter(description = "Filtrar por precio mínimo (mayor o igual)") BigDecimal minPrice,
+            @RequestParam(required = false) @Parameter(description = "Filtrar por precio máximo (menor o igual)") BigDecimal maxPrice,
+            @RequestParam(required = false) @Parameter(description = "Filter by name (partial search)") String name,
+            @RequestParam(required = false) @Parameter(description = "Filter by brand (partial search)") String brand,
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC)
+            @Parameter(description = "Parámetros de paginación y ordenamiento. Ejemplos: ?page=0&size=10&sort=price,desc&sort=name,asc")
+            Pageable pageable) {
+        return ResponseEntity.ok(deviceService.getAll(minPrice, maxPrice, name, brand, pageable));
     }
 
     @Operation(summary = "Obtener dispositivo por ID",
